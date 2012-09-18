@@ -9,12 +9,12 @@ public:
 
     void onCollisionUp(SceneActor *a){
             Point3f f = a->getForce();
-            //Point3f *p = a->getPosition();
+            Point3f *p = a->getPosition();
 
             f.y = 0;
             a->setForce(&f);
             a->gameState.force.y  = 3;
-            //p->y = this->getPosition()->y + 12;
+            p->y = this->getPosition()->y + 10;
     }
 
     void onCollisionLeft(SceneActor *a){

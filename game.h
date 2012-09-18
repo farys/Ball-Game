@@ -4,65 +4,47 @@
 #include <QGLWidget>
 #include <QKeyEvent>
 #include <QTimer>
+#include <QList>
 #include <math.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
-
-#include <QList>
 
 #include "maptile.h"
 #include "register.h"
 #include "c3ds.h"
 #include "player.h"
+#include "cristal.h"
 
 bool testCubePoint(Point3f p, Point3f min, Point3f max);
-
 
 class Game : public QGLWidget
 {
     Q_OBJECT
     
 public:
-    GLfloat angleX,angleY,angleZ;
+
     explicit Game(QGLWidget *parent = 0);
     ~Game();
     bool loadLevel(int level);
-
+    void closeLevel();
+    bool nextLevel();
 protected:
 
     QList<MapTile*> mapTiles;
+    QList<Cristal*> cristals;
     QList<C3DS> models;
 
     Player player;
-    bool leftKey, rightKey;
-
-    void initializeGL()
-    {
-        glClearColor(0, 0, 0, 0);
-        glEnable(GL_DEPTH_TEST);
-        glShadeModel (GL_SMOOTH);
-
-        glEnable(GL_LIGHTING);
-        GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1.0 };
-        GLfloat light_ambient[] = { 0.6, 0.6, 0.6, 1 };
-        GLfloat light_position[] = { 0.0, 10.0, 0.0, 1.0 };
-        glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-        glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
-        glEnable(GL_LIGHT0);
-        glEnable(GL_COLOR_MATERIAL);
-        glEnable(GL_NORMALIZE);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(150, this->height()/this->width(), 1, 10000);
-        angleY = angleZ = 0;
-        angleX = -0.2;
-        this->loadLevel(1);
-        leftKey = 0;
-        rightKey = 0;
-        glEnable(GL_TEXTURE_2D);
-    }
+    bool leftKey, rightKey, downKey;
+    int rotateX;
+    int frames;
+    int fps;
+    int currentLevel;
+    Point3f levelTranslate;
+    float scaleWorld;
+    int levelWidth, levelHeight;
+    GLfloat angleX,angleY,angleZ;
+    void initializeGL();
 
     void resizeGL(int w, int h)
     {
@@ -82,49 +64,34 @@ gluLookAt(
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glRotatef(this->angleX, 1,0, 0);
-        glRotatef(this->angleY, 0,1, 0);
-        glRotatef(this->angleZ, 0,0, 1);
-        //glScalef(0.5, 0.5, 0.5);
-        //gluLookAt(0,10,-10, 0,0,0, 0, 1, 0);
-        /*glBegin(GL_QUADS);
-           glColor3f(1,1,1);
 
-           //przod
-           glVertex3f(0.5, 0.5, -0.5);
-           glVertex3f(0.5, -0.5, -0.5);
-           glVertex3f(-0.5, -0.5, -0.5);
-           glVertex3f(-0.5, 0.5, -0.5);
+        qglColor(QColor(255, 255, 0));
+        this->renderText(-1,0.9,-.5, QString("FPS: ") + QString::number(fps));
+        this->renderText(-1,0.8,-.5, QString("Cristals: ") + QString::number(this->cristals.length()));
+        this->renderText(-1,0.7,-.5,
+                         QString("Player pos: (") + QString::number(this->player.getPosition()->x) +
+                         QString(", ") + QString::number(this->player.getPosition()->y)
+                         + QString(", ") + QString::number(this->player.getPosition()->z)
+                         + QString(")"));
 
-           //tyl
-           glVertex3f(0.5, 0.5, 0.5);
-           glVertex3f(0.5, -0.5, 0.5);
-           glVertex3f(-0.5, -0.5, 0.5);
-           glVertex3f(-0.5, 0.5, 0.5);
 
-           //lewa
-           glVertex3f(-0.5, -0.5,-0.5);
-           glVertex3f(-0.5, 0.5, -0.5);
-           glVertex3f(-0.5, 0.5, 0.5);
-           glVertex3f(-0.5, -0.5, 0.5);
+        glRotatef(this->angleX, 1, 0, 0);
+        glRotatef(this->angleY, 0, 1, 0);
+        glRotatef(this->angleZ, 0, 0, 1);
 
-           //prawa
-           glVertex3f(0.5, -0.5,-0.5);
-           glVertex3f(0.5, 0.5, -0.5);
-           glVertex3f(0.5, 0.5, 0.5);
-           glVertex3f(0.5, -0.5, 0.5);
+        Point3f *p = player.getPosition();
+        glScalef(scaleWorld, scaleWorld, scaleWorld);
 
-           //gora
-           glVertex3f(-0.5, 0.5,-0.5);
-           glVertex3f(-0.5, 0.5, 0.5);
-           glVertex3f(0.5, 0.5, 0.5);
-           glVertex3f(0.5, -0.5, -0.5);
+        //pilka ma srodek w p(x,y) -10 +10 za gabaryty
+        if(p->x > 490 && levelWidth-510 > p->x) {
+            levelTranslate.x = p->x;
+        }
 
-           glEnd();*/
-
-        //glRotatef(0.2, 1,0,0);
-        glScalef(0.002, 0.002, 0.002);
-glTranslatef(-490,-510,0);
+        //pilka ma na spodzie y=0
+        if(p->y > 500 && levelHeight-510 > p->y) {
+            levelTranslate.y = p->y;
+        }
+        glTranslatef(-levelTranslate.x, -levelTranslate.y, 0);
 
         //map
         for(int i=0; i < mapTiles.length(); i++){
@@ -136,14 +103,27 @@ glTranslatef(-490,-510,0);
             glPopMatrix();
         }
 
-        //player
-        glPushMatrix();
-        Point3f *p = player.getPosition();
+        //cristals
+        for(int i=0; i < cristals.length(); i++){
+            glPushMatrix();
+            Point3f *p = cristals[i]->getPosition();
 
+            glTranslatef(p->x, p->y, p->z);
+            glRotatef(cristals[i]->rotateZ, 1,1,1);
+            cristals[i]->rotateZ += 0.6;
+            models[cristals[i]->getModelId()].render();
+            glPopMatrix();
+        }
+
+        //player
         glTranslatef(p->x, p->y, p->z);
-        glRotatef(this->player.gameState.force.x, 0,0,1 );
+        //glPushMatrix();
+        this->rotateX += this->player.getForce().x * 1.5;
+        glRotatef(this->rotateX * -1, 0,0,1 );
+        //glPopMatrix();
         models[player.getModelId()].render();
-        glPopMatrix();
+
+        frames++;
     }
 
     void keyPressEvent(QKeyEvent *event){
@@ -153,6 +133,10 @@ glTranslatef(-490,-510,0);
             break;
         case Qt::Key_Left:
             leftKey = true;
+            break;
+        case Qt::Key_Down:
+            downKey = true;
+            break;
         }
     }
 
@@ -164,14 +148,26 @@ glTranslatef(-490,-510,0);
         case Qt::Key_Left:
             leftKey = false;
             break;
+        case Qt::Key_Down:
+            downKey = false;
+            break;
         case Qt::Key_Y:
             angleY += 1;
-        break;
+            break;
+        case Qt::Key_Z:
+            angleZ += 1;
+            break;
+        case Qt::Key_F9:
+            scaleWorld -= 0.0001;
+            break;
+        case Qt::Key_F10:
+            scaleWorld += 0.0001;
+            break;
         }
     }
 
-
     SceneActor* actorAt(float x, float y, float z = 0){
+        /* Map tiles */
         for(int i=0; i < mapTiles.length(); i++){
             Point3f *translation = mapTiles[i]->getPosition();
             Point3f min = models[mapTiles[i]->getModelId()].getMinPoint();
@@ -181,6 +177,25 @@ glTranslatef(-490,-510,0);
                 return (SceneActor*) mapTiles[i];
             }
         }
+
+        /* Cristals */
+        if(cristals.length()){
+            Point3f min = models[cristals[0]->getModelId()].getMinPoint();
+            Point3f max = models[cristals[0]->getModelId()].getMaxPoint();
+
+            for(int i=0; i < cristals.length(); i++){
+                Point3f *translation = cristals[i]->getPosition();
+
+                if(testCubePoint(Point3f(x,y,z), min + *translation, max + *translation)){ //sprawdzam czy punkt (x,y,z) znajduje sie wewnatrz prostopadloscianu krysztalu
+                    SceneActor *c = (SceneActor*) cristals[i]; //pobieram wskaznik na krysztal
+                    this->cristals.removeAt(i); //usuwam krysztal z listy, aby go nie wyswietlac wiecej, ani nie liczyc kolizji
+                    return c; //zwracam krysztal
+                }
+            }
+        }else {
+            nextLevel();
+        }
+
         return NULL;
     }
 
@@ -193,9 +208,6 @@ public slots:
     void updatePsychics(){
         this->calculatePsychic(&this->player);
 
-        /*for(int i=0; i< this->enemy.length(); i++){
-               this->calculatePsychic(this->enemy[i]);
-           }*/
         if(rightKey){
             player.gameState.force.x += 0.1;
         }
@@ -203,6 +215,15 @@ public slots:
         if(leftKey){
             player.gameState.force.x -= 0.1;
         }
+
+        if(downKey){
+            player.gameState.force.y -= 0.1;
+        }
+    }
+
+    void updateFps(){
+        fps = frames;
+        frames = 0;
     }
 
 };

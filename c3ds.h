@@ -102,6 +102,12 @@ struct stVert
         z=0;
     }
 
+    void set(float x, float y, float z){
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
     void normalize()
     {
         float length = this->getLength();
@@ -120,11 +126,23 @@ struct stFace
 {
     uint vertIds[3];
     int materialID;
+
+    void set(uint vertA, uint vertB, uint vertC, int matId){
+        this->vertIds[0] = vertA;
+        this->vertIds[1] = vertB;
+        this->vertIds[2] = vertC;
+        this->materialID = matId;
+    }
 };
 
 struct stTex
 {
     float tu, tv;
+
+    void set(float u, float v){
+        this->tu = u;
+        this->tv = v;
+    }
 };
 
 struct stMesh
@@ -165,6 +183,7 @@ protected:
     vector<stMaterial> m_pMaterials;
 
 public:
+    C3DS(){};
     C3DS(char* szFileName);
     ~C3DS(void);
 
@@ -196,13 +215,15 @@ protected:
     int GetString          (char* pBuffer);
     void SkipChunk         (stChunk *pChunk);
     void ReadChunk         (stChunk *pChunk);
+    void GenerateTexture(stMaterial *m);
 
     void calculateNormal();
 
-private:
+protected:
 
     Point3f min;
     Point3f max;
+    Point3f scale;
     uint glListId;
 };
 

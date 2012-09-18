@@ -1,15 +1,12 @@
-#include "powerup.h"
+#include "cristal.h"
+#include "math.h"
 
-PowerUp::PowerUp()
+Cristal::Cristal()
 {
+    this->rotateZ = rand() % 360;
     this->setActorType(ACTOR_POWERUP);
     this->setBarrier(false);
     this->setCalculatingPsychics(true);
     this->setCollisionDetection(true);
     this->taken = false;
-}
-
-void PowerUp::setTakenAnimation(AnimationImage *takenAnimation)
-{
-    this->takenAnimation = takenAnimation;
 }

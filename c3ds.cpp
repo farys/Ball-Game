@@ -13,6 +13,9 @@ C3DS::C3DS(char *szFileName)
 {
     m_iNumMeshs     = 0;
     m_iNumMaterials = 0;
+    this->scale.x = 1;
+    this->scale.y = 1;
+    this->scale.z = 1;
     this->load(szFileName);
 }
 
@@ -225,14 +228,26 @@ void C3DS::GetTexFileName(stChunk* Chunk)
     Chunk->bytesRead += GetString(str);
 
     stMaterial* pMat = &(m_pMaterials[m_iNumMaterials-1]);
-    strcpy( pMat->szTextureFile, str );
+    strcpy(pMat->szTextureFile, str);
 
+    this->GenerateTexture(pMat);
+}
+
+
+void C3DS::GenerateTexture(stMaterial *m){
     QImage image;
-    image.load(QString("./data/images/") + str);
-    glGenTextures(1, &pMat->GLTextureId);
-    glBindTexture(GL_TEXTURE_2D, pMat->GLTextureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.bits());
+    if(image.load(QString("./data/images/") + m->szTextureFile)){
+        glGenTextures(1, &m->GLTextureId);
+        glBindTexture(GL_TEXTURE_2D, m->GLTextureId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT ) ;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT ) ;
 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    }
 }
 
 // Read in our diffuse colour (rgb)
@@ -376,7 +391,7 @@ void C3DS::compile()
 {
     this->glListId = glGenLists(1);
     unsigned int vertId;
-    unsigned int lastMaterialId = -1;
+    unsigned int lastTextureId = -1;
     glNewList(this->glListId, GL_COMPILE);
     glBegin(GL_TRIANGLES);
     for(int i=0; i < m_iNumMeshs; i++)
@@ -387,8 +402,9 @@ void C3DS::compile()
             stFace *pFace = &pMesh->pFaces[y];
 
             glColor3f(1.0f, 1.0f, 1.0f);
-            if(lastMaterialId != pFace->materialID){
-                //glBindTexture(GL_TEXTURE_2D, m_pMaterials[pFace->materialID].GLTextureId);
+            if(lastTextureId != m_pMaterials[pFace->materialID].GLTextureId){
+                glBindTexture(GL_TEXTURE_2D, m_pMaterials[pFace->materialID].GLTextureId);
+                lastTextureId = m_pMaterials[pFace->materialID].GLTextureId;
             }
 
             for(int p = 0; p < 3; p++){
@@ -396,14 +412,14 @@ void C3DS::compile()
 
                 glTexCoord2f(pMesh->pTexs[vertId].tu, pMesh->pTexs[vertId].tv);
                 glNormal3f(pMesh->pNormalVerts[vertId].x, pMesh->pNormalVerts[vertId].y, pMesh->pNormalVerts[vertId].z);
-                glVertex3f(pMesh->pVerts[vertId].x, pMesh->pVerts[vertId].y, pMesh->pVerts[vertId].z);
+                glVertex3f(pMesh->pVerts[vertId].x*this->scale.x, pMesh->pVerts[vertId].y*this->scale.y, pMesh->pVerts[vertId].z*this->scale.z);
 
-                min.x = Min(min.x, pMesh->pVerts[vertId].x);
-                max.x = Max(max.x, pMesh->pVerts[vertId].x);
-                min.y = Min(min.y, pMesh->pVerts[vertId].y);
-                max.y = Max(max.y, pMesh->pVerts[vertId].y);
-                min.z = Min(min.z, pMesh->pVerts[vertId].z);
-                max.z = Max(max.z, pMesh->pVerts[vertId].z);
+                min.x = Min(min.x, pMesh->pVerts[vertId].x*this->scale.x);
+                max.x = Max(max.x, pMesh->pVerts[vertId].x*this->scale.x);
+                min.y = Min(min.y, pMesh->pVerts[vertId].y*this->scale.y);
+                max.y = Max(max.y, pMesh->pVerts[vertId].y*this->scale.y);
+                min.z = Min(min.z, pMesh->pVerts[vertId].z*this->scale.z);
+                max.z = Max(max.z, pMesh->pVerts[vertId].z*this->scale.z);
             }
 
         }
@@ -414,6 +430,7 @@ void C3DS::compile()
 
 void C3DS::render()
 {
+    glBindTexture(GL_TEXTURE_2D, m_pMaterials[0].GLTextureId);
     glCallList(this->glListId);
 }
 

@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     gamestate.cpp \
     point3f.cpp \
     player.cpp \
-    character.cpp
+    character.cpp \
+    cristal.cpp
 
 HEADERS  += game.h \
     c3ds.h \
@@ -29,7 +30,9 @@ HEADERS  += game.h \
     point3f.h \
     register.h \
     player.h \
-    character.h
+    character.h \
+    cristalmodel.h \
+    cristal.h
 
 FORMS    +=
 LIBS += -L/usr/local/lib -lGLU

@@ -1,27 +1,17 @@
-#ifndef POWERUP_H
-#define POWERUP_H
+#ifndef CRISTAL_H
+#define CRISTAL_H
 #include "sceneactor.h"
-#include "animationimage.h"
 
-class PowerUp : public SceneActor
+class Cristal : public SceneActor
 {
 public:
-    PowerUp();
+    Cristal();
 
     void onCollision(SceneActor *a){
         if(this->taken) return;
 
-        a->gameState.gold++;
-        this->setAnimation(takenAnimation);
+        a->gameState.cristals++;
         this->taken = true;
-        this->setCollisionDetection(false);
-    }
-
-    void setTakenAnimation(AnimationImage *takenAnimation);
-
-    void onEndOfAnimation(){
-        if(taken)
-        this->removeFromIndex();
         delete this;
     }
 
@@ -36,8 +26,9 @@ public:
     void onCollisionRight(SceneActor *a){
         onCollision(a);
     }
-    AnimationImage *takenAnimation;
+
     bool taken;
+    float rotateZ;
 };
 
 #endif // POWERUP_H
