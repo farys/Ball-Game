@@ -5,15 +5,7 @@ struct Point3f {
     float x,y,z;
 
     Point3f();
-    Point3f(float x, float y, float z){
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-
-    Point3f operator+(Point3f b){
-        return Point3f(x + b.x, y + b.y, z + b.z);
-    }
-
+    Point3f(float x, float y, float z);
+    Point3f operator+(Point3f b);
 };
 #endif // POINT3F_H

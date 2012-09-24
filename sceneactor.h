@@ -24,31 +24,32 @@ public:
     SceneActor();
 
     void setPosition(Point3f *pos);
-    Point3f* getPosition(){ return &this->pos;}
+    Point3f* getPosition();
 
-    short getActorType(){return this->actorType;}
-    void setActorType(short t){this->actorType = t;}
+    short getActorType();
+    void setActorType(short t);
 
-    Point3f getForce(){ return this->force;}
-    void setForce(Point3f *f){ this->force = *f;}
+    Point3f getForce();
+    void setForce(Point3f *f);
 
-    bool calculatePsychics(){ return this->psychic;}
-    void setCalculatingPsychics(bool p){ this->psychic = p;}
+    bool calculatePsychics();
+    void setCalculatingPsychics(bool p);
 
-    bool getBarrier(){ return this->barrier;}
-    void setBarrier(bool b){ this->barrier = b;}
+    bool getBarrier();
+    void setBarrier(bool b);
 
-    bool calculateCollisions(){return this->calcCollision;}
-    void setCollisionDetection(bool c){this->calcCollision = c;}
+    void setFriction(qreal f);
+    qreal getFriction();
+
+    void setModelId(uint listId);
+    uint getModelId();
+
+    bool calculateCollisions();
+    void setCollisionDetection(bool c);
 
     QString toString();
 
-    void update(){
-
-        if(this->gameState != GameState()){
-           this->onChangeGameState();
-        }
-    }
+    void update();
 
     void onCollisionUp(SceneActor *){}
     void onCollisionLeft(SceneActor *){}
@@ -58,30 +59,17 @@ public:
     void onChangeGameState(){}
     void onEveryFrame(){}
 
+    void msg(QString txt);
+
     GameState gameState;
-
-    void msg(QString txt){
-        QMessageBox msg;
-        msg.setText(txt);
-        msg.exec();
-    }
-
-    void setFriction(qreal f){this->friction = f;}
-    qreal getFriction(){return this->friction;}
-
-    void setModelId(uint listId){this->modelId = listId;}
-    uint getModelId(){return modelId;}
-
 private:
 
     Point3f pos;
     Point3f force;
     short actorType;
     uint modelId;
-
     qreal friction;
     int life;
-
     bool psychic;
     bool barrier;
     bool calcCollision;

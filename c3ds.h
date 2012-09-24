@@ -3,7 +3,7 @@
 /*                            www.xbdev.net                                */
 /*                         bkenwright@xbdev.net                            */
 /*                                3ds.h                                    */
-/*                           with modyfication from: farys                 */
+/*                           with modyfication by: farys                   */
 /***************************************************************************/
 #ifndef C3DS_H
 #define C3DS_H
@@ -215,11 +215,9 @@ protected:
     int GetString          (char* pBuffer);
     void SkipChunk         (stChunk *pChunk);
     void ReadChunk         (stChunk *pChunk);
-    void GenerateTexture(stMaterial *m);
+    void GenerateTexture(stMaterial *m, QString textureFile);
 
     void calculateNormal();
-
-protected:
 
     Point3f min;
     Point3f max;

@@ -7,25 +7,11 @@ class Cristal : public SceneActor
 public:
     Cristal();
 
-    void onCollision(SceneActor *a){
-        if(this->taken) return;
+    void onCollision(SceneActor *a);
 
-        a->gameState.cristals++;
-        this->taken = true;
-        delete this;
-    }
-
-    void onCollisionUp(SceneActor *a){
-        onCollision(a);
-    }
-
-    void onCollisionLeft(SceneActor *a){
-        onCollision(a);
-    }
-
-    void onCollisionRight(SceneActor *a){
-        onCollision(a);
-    }
+    void onCollisionUp(SceneActor *a);
+    void onCollisionLeft(SceneActor *a);
+    void onCollisionRight(SceneActor *a);
 
     bool taken;
     float rotateZ;

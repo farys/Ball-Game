@@ -230,13 +230,13 @@ void C3DS::GetTexFileName(stChunk* Chunk)
     stMaterial* pMat = &(m_pMaterials[m_iNumMaterials-1]);
     strcpy(pMat->szTextureFile, str);
 
-    this->GenerateTexture(pMat);
+    this->GenerateTexture(pMat, str);
 }
 
 
-void C3DS::GenerateTexture(stMaterial *m){
+void C3DS::GenerateTexture(stMaterial *m, QString textureFile){
     QImage image;
-    if(image.load(QString("./data/images/") + m->szTextureFile)){
+    if(image.load(QString("./data/images/") + textureFile)){
         glGenTextures(1, &m->GLTextureId);
         glBindTexture(GL_TEXTURE_2D, m->GLTextureId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT ) ;
@@ -287,15 +287,12 @@ void C3DS::GetMaterialName(stChunk* Chunk)
 /*                                                                         */
 /***************************************************************************/
 
-void C3DS::ParseChunk(stChunk* Chunk)
-{
-    while(Chunk->bytesRead < Chunk->length)
-    {
+void C3DS::ParseChunk(stChunk* Chunk){
+    while(Chunk->bytesRead < Chunk->length){
         stChunk tempChunk = {0, 0, 0};
         ReadChunk(&tempChunk);
 
-        switch( tempChunk.ID)
-        {
+        switch( tempChunk.ID){
         // HEADER OUR ENTRY POINT
         case EDIT3DS: //0x3D3D
             ParseChunk(&tempChunk);
@@ -322,8 +319,7 @@ void C3DS::ParseChunk(stChunk* Chunk)
             break;
 
             // OBJECT - MESH'S
-        case NAMED_OBJECT: //0x4000
-        {
+        case NAMED_OBJECT:{
             stMesh newMesh;
             m_pMeshs.push_back(newMesh);
             m_iNumMeshs++;
@@ -360,8 +356,7 @@ void C3DS::ParseChunk(stChunk* Chunk)
 /*                                                                         */
 /***************************************************************************/
 
-bool C3DS::load(char* szFileName)
-{
+bool C3DS::load(char* szFileName){
     m_fp = fopen(szFileName, "rb");
 
     stChunk Chunk = {0, 0, 0};
@@ -377,10 +372,8 @@ bool C3DS::load(char* szFileName)
     return true;
 }
 
-void C3DS::release()
-{
-    for(int i=0; i<m_iNumMeshs; i++)
-    {
+void C3DS::release(){
+    for(int i=0; i<m_iNumMeshs; i++){
         delete[] m_pMeshs[i].pVerts;
         delete[] m_pMeshs[i].pFaces;
         delete[] m_pMeshs[i].pTexs;
@@ -391,21 +384,16 @@ void C3DS::compile()
 {
     this->glListId = glGenLists(1);
     unsigned int vertId;
-    unsigned int lastTextureId = -1;
     glNewList(this->glListId, GL_COMPILE);
     glBegin(GL_TRIANGLES);
-    for(int i=0; i < m_iNumMeshs; i++)
-    {
+    for(int i=0; i < m_iNumMeshs; i++){
         stMesh *pMesh = &this->m_pMeshs[i];
 
         for(int y = 0; y < pMesh->iNumFaces; y++){
             stFace *pFace = &pMesh->pFaces[y];
 
             glColor3f(1.0f, 1.0f, 1.0f);
-            if(lastTextureId != m_pMaterials[pFace->materialID].GLTextureId){
-                glBindTexture(GL_TEXTURE_2D, m_pMaterials[pFace->materialID].GLTextureId);
-                lastTextureId = m_pMaterials[pFace->materialID].GLTextureId;
-            }
+            //glBindTexture(GL_TEXTURE_2D, m_pMaterials[pFace->materialID].GLTextureId);
 
             for(int p = 0; p < 3; p++){
                 vertId = pFace->vertIds[p];

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT += core gui
 QT += opengl
 
 TARGET = mario3D
@@ -32,7 +32,8 @@ HEADERS  += game.h \
     player.h \
     character.h \
     cristalmodel.h \
-    cristal.h
+    cristal.h \
+    tilemodel.h
 
 FORMS    +=
 LIBS += -L/usr/local/lib -lGLU

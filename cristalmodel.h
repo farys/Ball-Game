@@ -40,9 +40,7 @@ public:
 
         /* Materials */
         stMaterial m;
-        strcpy(m.szTextureFile, "CRISTAL.JPG");
-
-        this->GenerateTexture(&m);
+        this->GenerateTexture(&m, "CRISTAL.JPG");
         this->m_pMaterials.push_back(m);
         this->m_iNumMaterials = 1;
 
