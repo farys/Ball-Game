@@ -1,9 +1,9 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "character.h"
 #include "gamestate.h"
+#include "sceneactor.h"
 
-class Player : public Character
+class Player : public SceneActor
 {
 public:
     Player();

@@ -19,7 +19,6 @@ SOURCES += main.cpp\
     gamestate.cpp \
     point3f.cpp \
     player.cpp \
-    character.cpp \
     cristal.cpp
 
 HEADERS  += game.h \
@@ -30,7 +29,6 @@ HEADERS  += game.h \
     point3f.h \
     register.h \
     player.h \
-    character.h \
     cristalmodel.h \
     cristal.h \
     tilemodel.h

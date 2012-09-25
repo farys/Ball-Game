@@ -84,16 +84,14 @@ using namespace std ;
 #define           ANIM_ROT          0xB021
 #define           ANIM_SCALE        0xB022
 
-struct stMaterial
-{
+struct stMaterial{
     char szName[256];
     struct{ unsigned char r,g,b; } Colour;
     char szTextureFile[256];
     unsigned int GLTextureId;
 };
 
-struct stVert
-{
+struct stVert{
     float x, y, z;
 
     stVert(){
@@ -108,22 +106,19 @@ struct stVert
         this->z = z;
     }
 
-    void normalize()
-    {
+    void normalize(){
         float length = this->getLength();
         this->x /= length;
         this->y /= length;
         this->z /= length;
     }
 
-    float getLength()
-    {
+    float getLength(){
         return (float)sqrt((x * x) + (y * y) + (z * z));
     }
 };
 
-struct stFace
-{
+struct stFace{
     uint vertIds[3];
     int materialID;
 
@@ -135,8 +130,7 @@ struct stFace
     }
 };
 
-struct stTex
-{
+struct stTex{
     float tu, tv;
 
     void set(float u, float v){
@@ -155,8 +149,7 @@ struct stMesh
     stFace* pFaces;
     stTex* pTexs;
 
-    stMesh()
-    {
+    stMesh(){
         iNumVerts  = 0;
         pVerts     = NULL;
         pNormalVerts = NULL;
@@ -169,8 +162,7 @@ struct stMesh
 class C3DS
 {
 protected:
-    struct stChunk
-    {
+    struct stChunk{
         unsigned short ID;
         unsigned int length;
         unsigned int bytesRead;

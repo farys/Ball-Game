@@ -7,7 +7,6 @@
 #include "point3f.h"
 
 #define ACTOR_MAP_TILE 0
-#define ACTOR_CHARACTER 1
 #define ACTOR_ENEMY 2
 #define ACTOR_PLAYER 3
 #define ACTOR_RESPAWN 4
@@ -55,7 +54,6 @@ public:
     void onCollisionLeft(SceneActor *){}
     void onCollisionRight(SceneActor *){}
     void onCollisionDown(SceneActor *){}
-    void onEndOfAnimation(){}
     void onChangeGameState(){}
     void onEveryFrame(){}
 
