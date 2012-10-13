@@ -3,8 +3,8 @@
 
 #include "config.h"
 #include "gamestate.h"
-#include <QMessageBox>
 #include "point3f.h"
+#include <QString>
 
 #define ACTOR_MAP_TILE 0
 #define ACTOR_ENEMY 2
@@ -56,8 +56,6 @@ public:
     void onCollisionDown(SceneActor *){}
     void onChangeGameState(){}
     void onEveryFrame(){}
-
-    void msg(QString txt);
 
     GameState gameState;
 private:

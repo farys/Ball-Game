@@ -7,7 +7,7 @@
 QT += core gui
 QT += opengl
 
-TARGET = mario3D
+TARGET = theBall
 TEMPLATE = app
 
 

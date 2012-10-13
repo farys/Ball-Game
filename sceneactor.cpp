@@ -80,10 +80,4 @@ void SceneActor::update(){
     }
 }
 
-void SceneActor::msg(QString txt){
-    QMessageBox msg;
-    msg.setText(txt);
-    msg.exec();
-}
-
 
